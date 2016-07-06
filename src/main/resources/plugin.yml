@@ -1,0 +1,61 @@
+name: LockIt
+version: "1.0"
+api: ["1.0.0"]
+main: LockIt.LockIt
+author: "CreeperFace"
+description: "Protects chests and doors from other players"
+load: STARTUP
+
+commands:
+  lock:
+    permission: lockit.command.lock
+  unlock:
+    permission: lockit.command.unlock
+  passlock:
+    permission: lockit.command.passlock
+  passunlock:
+    permission: lockit.command.passunlock
+  password:
+    permission: lockit.command.password
+  modify:
+    permission: lockit.command.modify
+
+permissions:
+  lockit:
+    description: "Main LockIt permission"
+    default: op
+    children:
+      lockit.command:
+        description: "Allows player to use all LockIt commands"
+        default: op
+        children:
+          lockit.command.lock:
+            description: "Allows player to lock blocks"
+            default: true
+          lockit.command.public:
+            description: "Allows player to make public protection"
+            default: true
+          lockit.command.unlock:
+            description: "Allows player to unlock theirs locked blocks"
+            default: true
+          lockit.command.passlock:
+            description: "Allows player to lock chests with password"
+            default: true
+          lockit.command.modify:
+            description: "Allows player to modify locked chest"
+            default: true
+          lockit.command.password:
+            description: "Allow player to open password protected chest using certain password"
+            default: true
+      lockit.access:
+        description: "Allows player to use all locked blocks"
+        default: op
+      lockit.deny:
+        description: "Disallows player to use any protectable block"
+        default: false
+      lockit.autolock:
+        description: "Allows player place automatically locked chests"
+        default: false
+      lockit.info:
+        description: "Allows player to see information about locked blocks"
+        default: op

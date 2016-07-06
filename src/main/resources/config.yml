@@ -1,0 +1,36 @@
+#protectable blocks
+blocks:
+    chest: true
+    furnace: true
+    brewing: true
+    dispenser: true
+    hopper: true
+    dropper: true
+    item_frame: true
+    sign: true
+    oak_door: true
+    iron_door: true
+    spruce_door: true
+    birch_door: true
+    jungle_door: true
+    acacia_door: true
+    dark_oak_door: true
+    wooden_trap_door: true
+    iron_trap_door: true
+    oak_fence_gate: true
+    birch_fence_gate: true
+    spruce_fence_gate: true
+    jungle_fence_gate: true
+    acacia_fence_gate: true
+    dark_oak_fence_gate: true
+    trapped_chest: true
+
+#any protectable block gets locked when somebody with place it
+#if false, only players with lockit.autolock permission can use this
+enable_auto_lock: false
+
+#auto save interval in seconds
+auto_save_interval: 600
+
+#if player with lockit.info permission click on locked block with this item, it shows info about this protection
+info_item: leather
