@@ -54,7 +54,6 @@ public class ConfigParser {
                 } catch (Exception e) {
                     System.out.println("Invalid or corrupted data in " + f.getName());
                     e.printStackTrace();
-                    return null;
                 }
             }
 
@@ -63,8 +62,7 @@ public class ConfigParser {
 
                 data.setData(type, blocks);
             } catch (NumberFormatException e) {
-                System.out.println("Invalid or corrupted name of file " + f.getName());
-                return null;
+                System.out.println("Invalid name of file " + f.getName());
             }
         }
 

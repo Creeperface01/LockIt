@@ -63,6 +63,19 @@ public class LockIt extends PluginBase {
 
         loadConfig();
 
+        for(Level level : getServer().getLevels().values()) {
+            File world = new File(getDataFolder() + "/worlds/" + level.getFolderName());
+            world.mkdirs();
+
+            LevelData data = ConfigParser.parseConfig(world);
+
+            if (data == null) {
+                getLogger().warning("Could not load LockIt data from level "+level.getName());
+            } else {
+                setLevelData(level, data);
+            }
+        }
+
         getServer().getScheduler().scheduleDelayedRepeatingTask(new Runnable() {
 
             @Override
