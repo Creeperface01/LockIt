@@ -4,6 +4,7 @@ import LockIt.utils.LockItUtils;
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.event.EventHandler;
+import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockBurnEvent;
@@ -54,14 +55,10 @@ public class MainListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent e) {
         Player p = e.getPlayer();
         Block b = e.getBlock();
-
-        if (e.isCancelled()) {
-            return;
-        }
 
         if (!LockIt.getProtectableBlocks().contains(b.getId())) {
             return;
@@ -77,12 +74,12 @@ public class MainListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInteract(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         Block b = e.getBlock();
 
-        if (e.isCancelled() || e.getAction() != Action.RIGHT_CLICK_BLOCK) {
+        if (e.getAction() != Action.RIGHT_CLICK_BLOCK) {
             return;
         }
 
