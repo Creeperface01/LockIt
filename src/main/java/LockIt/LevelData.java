@@ -4,38 +4,13 @@ import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockChest;
 import cn.nukkit.block.BlockDoor;
 import cn.nukkit.blockentity.BlockEntityChest;
-import cn.nukkit.math.Vector3;
+import cn.nukkit.level.Level;
 
 import java.util.*;
 
 public class LevelData {
 
     public Map<Integer, Set<BlockData>> blocks = new HashMap<>();
-
-    /*public final List<BlockData> chests = new ArrayList<>();
-    public final List<BlockData> furnaces = new ArrayList<>();
-    public final List<BlockData> brewings = new ArrayList<>();
-    public final List<BlockData> dispensers = new ArrayList<>();
-    public final List<BlockData> hoppers = new ArrayList<>();
-    public final List<BlockData> droppers = new ArrayList<>();
-    public final List<BlockData> signs = new ArrayList<>();
-    public final List<BlockData> ironDoors = new ArrayList<>();
-    public final List<BlockData> oakDoors =  new ArrayList<>();
-    public final List<BlockData> birchDoors =  new ArrayList<>();
-    public final List<BlockData> spruceDoors = new ArrayList<>();
-    public final List<BlockData> jungleDoors = new ArrayList<>();
-    public final List<BlockData> acaciaDoors = new ArrayList<>();
-    public final List<BlockData> darkOakDoors = new ArrayList<>();
-    public final List<BlockData> trapDoors = new ArrayList<>();
-    public final List<BlockData> ironTrapDoors = new ArrayList<>();
-    public final List<BlockData> oakFenceGates = new ArrayList<>();
-    public final List<BlockData> birchFenceGates =  new ArrayList<>();
-    public final List<BlockData> spruceFenceGates = new ArrayList<>();
-    public final List<BlockData> jungleFenceGates = new ArrayList<>();
-    public final List<BlockData> acaciaFenceGates = new ArrayList<>();
-    public final List<BlockData> darkOakFenceGates = new ArrayList<>();
-    public final List<BlockData> trappedChests = new ArrayList<>();
-    public final List<BlockData> itemFrames = new ArrayList<>();*/
 
     public void setData(int type, List<BlockData> data) {
         /*List<BlockData> field;
@@ -67,6 +42,9 @@ public class LevelData {
     }
 
     public BlockData createBlockData(Block b, String owner) {
+        Level level = b.getLevel();
+
+
         BlockData data = new BlockData(b, owner.toLowerCase());
 
         blocks.get(b.getId()).add(data);
@@ -166,9 +144,9 @@ public class LevelData {
             Block part;
 
             if (isUp) {
-                part = b.getSide(Vector3.SIDE_DOWN);
+                part = b.down();
             } else {
-                part = b.getSide(Vector3.SIDE_UP);
+                part = b.up();
             }
 
             if (part.getId() == b.getId()) {

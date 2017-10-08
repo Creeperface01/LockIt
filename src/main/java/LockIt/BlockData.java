@@ -10,9 +10,13 @@ public class BlockData extends Vector3 {
     public String owner;
     public List<String> users;
     public boolean isPublic = false;
-    public Integer password = null;
+    public String password = null;
 
     public List<String> passwordUsers = new ArrayList<>();
+
+    public BlockData() {
+
+    }
 
     public BlockData(Vector3 pos, String owner) {
         this(pos, owner, new ArrayList<>());

@@ -1,37 +1,34 @@
 package LockIt;
 
+import LockIt.blockEntity.LockBlockEntity;
+import LockIt.utils.LockItUtils;
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
-import cn.nukkit.block.BlockChest;
-import cn.nukkit.block.BlockDoor;
-import cn.nukkit.blockentity.BlockEntityChest;
+import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemLeather;
-import cn.nukkit.level.Level;
-import cn.nukkit.math.Vector3;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.ConfigSection;
 import cn.nukkit.utils.TextFormat;
 import lombok.Getter;
 
-import java.awt.*;
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class LockIt extends PluginBase {
 
     @Getter
-    private final List<Integer> protectableBlocks = new ArrayList<>();
+    private static final String prefix = TextFormat.YELLOW + "[" + TextFormat.GREEN + "LockIt" + TextFormat.YELLOW + "] " + TextFormat.WHITE;
+
+    @Getter
+    private static final List<Integer> protectableBlocks = new ArrayList<>();
 
     private final MainListener mainListener = new MainListener(this);
 
-    @Getter
-    private final Map<String, LevelData> worlds = new HashMap<>();
+    /*@Getter
+    private final Map<String, LevelData> worlds = new HashMap<>();*/
 
     private static LockIt instance = null;
 
@@ -55,6 +52,7 @@ public class LockIt extends PluginBase {
     @Override
     public void onLoad() {
         instance = this;
+        BlockEntity.registerBlockEntity("LockIt", LockBlockEntity.class);
     }
 
     @Override
@@ -63,7 +61,7 @@ public class LockIt extends PluginBase {
 
         loadConfig();
 
-        for(Level level : getServer().getLevels().values()) {
+        /*for(Level level : getServer().getLevels().values()) {
             File world = new File(getDataFolder() + "/worlds/" + level.getFolderName());
             world.mkdirs();
 
@@ -87,25 +85,25 @@ public class LockIt extends PluginBase {
                     ConfigParser.save(new File(getDataFolder() + "/worlds/" + e.getKey()), e.getValue(), true);
                 }
             }
-        }, savePeriod, savePeriod);
+        }, savePeriod, savePeriod);*/
 
         getServer().getPluginManager().registerEvents(mainListener, this);
     }
 
-    @Override
+    /*@Override
     public void onDisable() {
         for (Map.Entry<String, LevelData> e : worlds.entrySet()) {
             ConfigParser.save(new File(getDataFolder() + "/worlds/" + e.getKey()), e.getValue(), false);
         }
-    }
+    }*/
 
-    public LevelData getLevelData(Level level) {
+    /*public LevelData getLevelData(Level level) {
         return worlds.get(level.getFolderName());
     }
 
     public void setLevelData(Level level, LevelData data) {
         worlds.put(level.getFolderName(), data);
-    }
+    }*/
 
     public void loadConfig() {
         autoLock = getConfig().getBoolean("enable_auto_lock");
@@ -140,8 +138,8 @@ public class LockIt extends PluginBase {
         if (blocks.getBoolean("jungle_door")) protectableBlocks.add(Item.JUNGLE_DOOR_BLOCK);
         if (blocks.getBoolean("acacia_door")) protectableBlocks.add(Item.ACACIA_DOOR_BLOCK);
         if (blocks.getBoolean("dark_oak_door")) protectableBlocks.add(Item.DARK_OAK_DOOR_BLOCK);
-        if (blocks.getBoolean("wooden_trapdoor")) protectableBlocks.add(Item.TRAPDOOR);
-        if (blocks.getBoolean("iron_trapdoor")) protectableBlocks.add(Item.IRON_TRAPDOOR);
+        if (blocks.getBoolean("wooden_trap_door")) protectableBlocks.add(Item.TRAPDOOR);
+        if (blocks.getBoolean("iron_trap_door")) protectableBlocks.add(Item.IRON_TRAPDOOR);
         if (blocks.getBoolean("oak_fence_gate")) protectableBlocks.add(Item.FENCE_GATE);
         if (blocks.getBoolean("birch_fence_gate")) protectableBlocks.add(Item.FENCE_GATE_BIRCH);
         if (blocks.getBoolean("spruce_fence_gate")) protectableBlocks.add(Item.FENCE_GATE_SPRUCE);
@@ -152,9 +150,10 @@ public class LockIt extends PluginBase {
     }
 
     public boolean canAccess(BlockData blockData, Player p) {
-        if (p.hasPermission("lockit.deny")) {
+        /*if (p.hasPermission("lockit.deny")) {
+            System.out.println("permission deny");
             return false;
-        }
+        }*/
 
         if (p.hasPermission("lockit.access") || blockData == null) {
             return true;
@@ -164,10 +163,12 @@ public class LockIt extends PluginBase {
             if (blockData.passwordUsers.contains(p.getName().toLowerCase()) || blockData.owner.toLowerCase().equals(p.getName().toLowerCase())) {
                 return true;
             }
+            System.out.println("password");
             return false;
         }
 
-        return blockData.isPublic || blockData.owner.toLowerCase().equals(p.getName().toLowerCase()) || blockData.users.contains(p.getName().toLowerCase());
+        System.out.println("owner");
+        return blockData.isPublic || blockData.owner.equalsIgnoreCase(p.getName()) || blockData.users.contains(p.getName().toLowerCase());
     }
 
     public boolean canAccess(Block b, Player p) {
@@ -175,26 +176,17 @@ public class LockIt extends PluginBase {
             return true;
         }
 
-        LevelData data = getLevelData(b.getLevel());
+        BlockData blockData = LockItUtils.getBlockData(b);
 
-        if (data == null) {
-            return false;
-        }
-
-        BlockData blockData = data.getBlockData(b);
-
-        return blockData == null || canAccess(blockData, p);
-    }
-
-    public boolean isLocked(Block b) {
-        LevelData data = getLevelData(b.getLevel());
-        if (data == null) {
+        if (blockData == null) {
             return true;
         }
 
-        BlockData blockData = data.getBlockData(b);
+        return canAccess(blockData, p);
+    }
 
-        return blockData != null;
+    public boolean isLocked(Block b) {
+        return LockItUtils.getBlockData(b) != null;
     }
 
     public static LockIt getInstance() {

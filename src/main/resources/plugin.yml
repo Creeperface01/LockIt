@@ -1,9 +1,9 @@
 name: LockIt
-version: "1.0"
+version: "2.0"
 api: ["1.0.0"]
 main: LockIt.LockIt
 author: "CreeperFace"
-description: "Protects chests and doors from other players"
+description: "Protects containers, doors, gates and other blocks from other players"
 load: STARTUP
 
 commands:
@@ -13,12 +13,12 @@ commands:
     permission: lockit.command.unlock
   passlock:
     permission: lockit.command.passlock
-  passunlock:
-    permission: lockit.command.passunlock
   password:
     permission: lockit.command.password
   modify:
     permission: lockit.command.modify
+  public:
+    permission: lockit.command.public
 
 permissions:
   lockit:

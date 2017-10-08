@@ -1,7 +1,7 @@
 package LockIt;
 
+import LockIt.utils.LockItUtils;
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
@@ -10,15 +10,11 @@ import cn.nukkit.event.block.BlockBurnEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.block.ItemFrameDropItemEvent;
 import cn.nukkit.event.entity.EntityExplodeEvent;
-import cn.nukkit.event.level.LevelLoadEvent;
-import cn.nukkit.event.level.LevelUnloadEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
+import cn.nukkit.event.player.PlayerInteractEvent.Action;
 import cn.nukkit.event.player.PlayerQuitEvent;
-import cn.nukkit.level.Level;
-import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.utils.TextFormat;
 
-import java.io.File;
 import java.util.*;
 
 public class MainListener implements Listener {
@@ -40,15 +36,7 @@ public class MainListener implements Listener {
             return;
         }
 
-        LevelData levelData = plugin.getLevelData(b.getLevel());
-
-        if (levelData == null) {
-            p.sendMessage(TextFormat.YELLOW + "Loading level data... Please wait.");
-            e.setCancelled();
-            return;
-        }
-
-        BlockData data = levelData.getBlockData(b);
+        BlockData data = LockItUtils.getBlockData(b);
 
         if (data == null) {
             return;
@@ -61,7 +49,7 @@ public class MainListener implements Listener {
             p.sendMessage(TextFormat.RED + "Only owners can remove a protection");
             e.setCancelled();
         } else {
-            levelData.removeBlockData(b, data);
+            LockItUtils.removeBlockData(b);
             p.sendMessage(TextFormat.GREEN + "Protection has been successfully removed.");
         }
     }
@@ -75,7 +63,7 @@ public class MainListener implements Listener {
             return;
         }
 
-        if (!plugin.getProtectableBlocks().contains(b.getId())) {
+        if (!LockIt.getProtectableBlocks().contains(b.getId())) {
             return;
         }
 
@@ -84,14 +72,7 @@ public class MainListener implements Listener {
         }
 
         if (plugin.isAutoLock() || p.hasPermission("lockit.autolock")) {
-            LevelData data = plugin.getLevelData(b.getLevel());
-
-            if (data == null) {
-                p.sendMessage(TextFormat.YELLOW + "Loading level data... Please wait.");
-                return;
-            }
-
-            data.createBlockData(b, p.getName());
+            LockItUtils.createBlockData(b, p.getName(), true);
             p.sendMessage(TextFormat.GREEN + "Created a new protection successfully.");
         }
     }
@@ -101,15 +82,7 @@ public class MainListener implements Listener {
         Player p = e.getPlayer();
         Block b = e.getBlock();
 
-        if (e.isCancelled() || e.getAction() != PlayerInteractEvent.RIGHT_CLICK_BLOCK) {
-            return;
-        }
-
-        LevelData levelData = plugin.getLevelData(b.getLevel());
-
-        if (levelData == null && plugin.getProtectableBlocks().contains(b.getId())) {
-            e.setCancelled();
-            p.sendMessage(TextFormat.YELLOW + "Loading level data... Please wait.");
+        if (e.isCancelled() || e.getAction() != Action.RIGHT_CLICK_BLOCK) {
             return;
         }
 
@@ -117,12 +90,12 @@ public class MainListener implements Listener {
             BlockData bData;
             e.setCancelled();
 
-            if (!plugin.getProtectableBlocks().contains(b.getId()) || (bData = levelData.getBlockData(b)) == null) {
+            if (!LockIt.getProtectableBlocks().contains(b.getId()) || (bData = LockItUtils.getBlockData(b)) == null) {
                 p.sendMessage(TextFormat.YELLOW + "That block is not protected");
                 return;
             }
 
-            p.sendMessage(TextFormat.LIGHT_PURPLE + TextFormat.BOLD + b.getName() + ":\n" +
+            p.sendMessage("" + TextFormat.LIGHT_PURPLE + TextFormat.BOLD + b.getName() + ":\n" +
                     TextFormat.GRAY + "Owner: " + TextFormat.YELLOW + bData.owner + "\n" +
                     TextFormat.GRAY + "Users: " + TextFormat.YELLOW + Arrays.toString(bData.users.toArray(new String[bData.users.size()])));
             return;
@@ -140,12 +113,12 @@ public class MainListener implements Listener {
                 return;
             }
 
-            if (!plugin.getProtectableBlocks().contains(b.getId())) {
+            if (!LockIt.getProtectableBlocks().contains(b.getId())) {
                 p.sendMessage(TextFormat.RED + "This block is not protectable");
                 return;
             }
 
-            BlockData bData = levelData.getBlockData(b);
+            BlockData bData = LockItUtils.getBlockData(b);
 
             switch (data.action) {
                 case ActionData.LOCK:
@@ -154,18 +127,18 @@ public class MainListener implements Listener {
                         return;
                     }
 
-                    levelData.createBlockData(b, p.getName());
+                    LockItUtils.createBlockData(b, p.getName(), false);
                     p.sendMessage(TextFormat.GREEN + "Created a new protection successfully.");
-                    break;
+                    return;
                 case ActionData.PUBLICLOCK:
                     if (bData != null) {
                         p.sendMessage(TextFormat.RED + "That " + b.getName() + " is already protected");
                         return;
                     }
 
-                    levelData.createBlockData(b, p.getName()).isPublic = true;
+                    LockItUtils.createBlockData(b, p.getName(), false, LockItUtils.createNBT(p.getName(), new ArrayList<>(), true, null, new ArrayList<>()));
                     p.sendMessage(TextFormat.GREEN + "Created a new protection successfully.");
-                    break;
+                    return;
                 case ActionData.UNLOCK:
                     if (bData == null) {
                         p.sendMessage(TextFormat.RED + "That " + b.getName() + " is not protected");
@@ -187,7 +160,7 @@ public class MainListener implements Listener {
                                 return;
                             }
 
-                            if (data.data[0].hashCode() != bData.password) {
+                            if (!data.data[0].equals(bData.password)) {
                                 p.sendMessage(TextFormat.RED + "Wrong password");
                                 return;
                             }
@@ -197,7 +170,7 @@ public class MainListener implements Listener {
                         }
                     }
 
-                    levelData.removeBlockData(b, bData);
+                    LockItUtils.removeBlockData(b);
                     p.sendMessage(TextFormat.GREEN + "Protection has been successfully removed.");
                     break;
                 case ActionData.PASSLOCK:
@@ -207,12 +180,10 @@ public class MainListener implements Listener {
                     }
 
                     String password = data.data[0];
-
-                    BlockData newData = levelData.createBlockData(b, p.getName());
-                    newData.password = password.hashCode();
+                    LockItUtils.createBlockData(b, p.getName(), false, LockItUtils.createNBT(p.getName(), new ArrayList<>(), false, password, new ArrayList<>()));
 
                     p.sendMessage(TextFormat.GREEN + "Created a new password protection successfully.");
-                    break;
+                    return;
                 case ActionData.PASSWORD_REQUEST:
                     if (bData == null) {
                         p.sendMessage(TextFormat.RED + "That block is not protected");
@@ -224,7 +195,7 @@ public class MainListener implements Listener {
                         return;
                     }
 
-                    if (bData.password != data.data[0].hashCode()) {
+                    if (!bData.password.equals(data.data[0])) {
                         p.sendMessage(TextFormat.RED + "Wrong password");
                         return;
                     }
@@ -291,6 +262,8 @@ public class MainListener implements Listener {
                         break;
                 }
             }
+
+            LockItUtils.saveData(b, bData);
             return;
         }
 
@@ -330,7 +303,7 @@ public class MainListener implements Listener {
         }
     }
 
-    @EventHandler
+    /*@EventHandler
     public void onLevelLoad(LevelLoadEvent e) {
         Level level = e.getLevel();
 
@@ -362,12 +335,12 @@ public class MainListener implements Listener {
                 }
             }
         }.parseTask(world, level.getFolderName()));
-    }
+    }*/
 
-    @EventHandler
+    /*@EventHandler
     public void onLevelUnload(LevelUnloadEvent e) {
 
-    }
+    }*/
 
     @EventHandler
     public void onItemFrameDrop(ItemFrameDropItemEvent e) {

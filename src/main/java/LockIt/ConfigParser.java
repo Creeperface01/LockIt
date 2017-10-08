@@ -13,7 +13,7 @@ public class ConfigParser {
     public static LevelData parseConfig(File folder) {
         LevelData data = new LevelData();
 
-        for (int i : LockIt.getInstance().getProtectableBlocks()) {
+        for (int i : LockIt.getProtectableBlocks()) {
             data.blocks.put(i, new HashSet<>());
         }
 
@@ -47,7 +47,7 @@ public class ConfigParser {
                     bData.isPublic = Boolean.valueOf(String.valueOf(para.get("public")));
 
                     if (para.containsKey("password")) {
-                        bData.password = (Integer) para.get("password");
+                        bData.password = (String) para.get("password");
                     }
 
                     blocks.add(bData);
