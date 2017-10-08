@@ -160,14 +160,9 @@ public class LockIt extends PluginBase {
         }
 
         if (blockData.password != null) {
-            if (blockData.passwordUsers.contains(p.getName().toLowerCase()) || blockData.owner.toLowerCase().equals(p.getName().toLowerCase())) {
-                return true;
-            }
-            System.out.println("password");
-            return false;
+            return blockData.passwordUsers.contains(p.getName().toLowerCase()) || blockData.owner.toLowerCase().equals(p.getName().toLowerCase());
         }
 
-        System.out.println("owner");
         return blockData.isPublic || blockData.owner.equalsIgnoreCase(p.getName()) || blockData.users.contains(p.getName().toLowerCase());
     }
 
