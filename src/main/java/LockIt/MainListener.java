@@ -11,9 +11,12 @@ import cn.nukkit.event.block.BlockBurnEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.block.ItemFrameDropItemEvent;
 import cn.nukkit.event.entity.EntityExplodeEvent;
+import cn.nukkit.event.inventory.InventoryMoveItemEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
 import cn.nukkit.event.player.PlayerInteractEvent.Action;
 import cn.nukkit.event.player.PlayerQuitEvent;
+import cn.nukkit.inventory.Inventory;
+import cn.nukkit.level.Position;
 import cn.nukkit.utils.TextFormat;
 
 import java.util.*;
@@ -94,7 +97,7 @@ public class MainListener implements Listener {
 
             p.sendMessage("" + TextFormat.LIGHT_PURPLE + TextFormat.BOLD + b.getName() + ":\n" +
                     TextFormat.GRAY + "Owner: " + TextFormat.YELLOW + bData.owner + "\n" +
-                    TextFormat.GRAY + "Users: " + TextFormat.YELLOW + Arrays.toString(bData.users.toArray(new String[bData.users.size()])));
+                    TextFormat.GRAY + "Users: " + TextFormat.YELLOW + Arrays.toString(bData.users.toArray(new String[0])));
             return;
         }
 
@@ -354,12 +357,34 @@ public class MainListener implements Listener {
         }
     }
 
+    @EventHandler(ignoreCancelled = true)
+    public void onItemMove(InventoryMoveItemEvent e) {
+        Inventory target = e.getTargetInventory();
+        Inventory from = e.getInventory();
+
+        BlockData data;
+        if (target != null && target.getHolder() instanceof Position) {
+            data = LockItUtils.getBlockData((Position) target.getHolder());
+
+            if (data != null) {
+                e.setCancelled();
+                return;
+            }
+        }
+
+        if (from != null && from.getHolder() instanceof Position) {
+            data = LockItUtils.getBlockData((Position) from.getHolder());
+
+            if (data != null) {
+                e.setCancelled();
+            }
+        }
+    }
+
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
 
-        if (players.containsKey(p.getName())) {
-            players.remove(p.getName());
-        }
+        players.remove(p.getName());
     }
 }
