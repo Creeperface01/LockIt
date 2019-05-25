@@ -202,7 +202,7 @@ public class MainListener implements Listener {
 
                     bData.passwordUsers.add(p.getName().toLowerCase());
                     p.sendMessage(TextFormat.GREEN + "Now you have access permission to this " + b.getName());
-                    //e.setCancelled(false);
+                    LockItUtils.saveData(b, bData);
                     return;
             }
 

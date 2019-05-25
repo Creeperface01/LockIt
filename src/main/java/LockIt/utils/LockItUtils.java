@@ -129,6 +129,10 @@ public class LockItUtils {
             data.isPublic = nbt.getBoolean("isPublic");
             data.password = nbt.getString("password");
 
+            if (data.password.isEmpty()) {
+                data.password = null;
+            }
+
             data.passwordUsers = new ArrayList<>();
 
             for (StringTag tag : nbt.getList("passwordusers", StringTag.class).getAll()) {
@@ -158,7 +162,10 @@ public class LockItUtils {
 
         tag.putString("owner", data.owner);
         tag.putBoolean("isPublic", data.isPublic);
-        tag.putString("password", data.password);
+
+        if (data.password != null) {
+            tag.putString("password", data.password);
+        }
 
 
         ListTag<StringTag> passUsers = new ListTag<>("passwordusers");
