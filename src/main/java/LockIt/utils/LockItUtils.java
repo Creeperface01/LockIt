@@ -119,25 +119,21 @@ public class LockItUtils {
             CompoundTag nbt = blockEntity.namedTag.getCompound("lockIt");
 
             BlockData data = new BlockData();
-            data.users = new ArrayList<String>() {
-                {
-                    for (StringTag tag : nbt.getList("users", StringTag.class).getAll()) {
-                        data.users.add(tag.data);
-                    }
-                }
-            };
+            data.users = new ArrayList<>();
+
+            for (StringTag tag : nbt.getList("users", StringTag.class).getAll()) {
+                data.users.add(tag.data);
+            }
 
             data.owner = nbt.getString("owner");
             data.isPublic = nbt.getBoolean("isPublic");
             data.password = nbt.getString("password");
 
-            data.passwordUsers = new ArrayList<String>() {
-                {
-                    for (StringTag tag : nbt.getList("passwordusers", StringTag.class).getAll()) {
-                        data.passwordUsers.add(tag.data);
-                    }
-                }
-            };
+            data.passwordUsers = new ArrayList<>();
+
+            for (StringTag tag : nbt.getList("passwordusers", StringTag.class).getAll()) {
+                data.passwordUsers.add(tag.data);
+            }
 
             return data;
         } catch (Exception e) {
@@ -160,7 +156,6 @@ public class LockItUtils {
             users.add(new StringTag("", user));
         }
 
-        tag.putList(users);
         tag.putString("owner", data.owner);
         tag.putBoolean("isPublic", data.isPublic);
         tag.putString("password", data.password);
@@ -171,6 +166,9 @@ public class LockItUtils {
         for (String user : data.passwordUsers) {
             passUsers.add(new StringTag("", user));
         }
+
+        tag.putList(users);
+        tag.putList(passUsers);
 
         blockEntity.namedTag.putCompound("lockIt", tag);
         if (blockEntity.chunk != null) {
