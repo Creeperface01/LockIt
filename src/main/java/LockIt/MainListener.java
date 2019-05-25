@@ -240,6 +240,7 @@ public class MainListener implements Listener {
                                 p.sendMessage(TextFormat.YELLOW + "User " + TextFormat.WHITE + user + TextFormat.YELLOW + " doesn't exist.");
                                 continue;
                             }
+
                             bData.users.remove(user.toLowerCase());
                         }
 

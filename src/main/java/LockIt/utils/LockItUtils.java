@@ -159,6 +159,8 @@ public class LockItUtils {
         for (String user : data.users) {
             users.add(new StringTag("", user));
         }
+
+        tag.putList(users);
         tag.putString("owner", data.owner);
         tag.putBoolean("isPublic", data.isPublic);
         tag.putString("password", data.password);
